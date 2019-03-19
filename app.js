@@ -1,3 +1,4 @@
+var http = require('http');
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -5,12 +6,14 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+var dao = require('./db');
 var index = require('./routes/index');
 var eraseEvents = require('./routes/eraseEvents');
 var events = require('./routes/events');
 var actor = require('./routes/actor');
 
 var app = express();
+var port = process.env.PORT || 2000;
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -24,6 +27,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+dao.createDb();
 
 app.use('/', index);
 app.use('/erase', eraseEvents);
@@ -48,4 +53,14 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+app.get('/', (req, res) => {
+    return res.send(200)
+})
+//http.listen(port, function(err) {
+//    if(err) {
+//        console.log('err connecting to port' + port)
+//    } else {
+//        console.log('listening on port ' + port)
+//    }
+//})
 module.exports = app;

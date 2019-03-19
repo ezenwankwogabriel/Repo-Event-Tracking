@@ -9,6 +9,7 @@
     "test": "./node_modules/.bin/mocha test"
   },
   "dependencies": {
+    "bluebird": "^3.5.0",
     "body-parser": "~1.17.1",
     "chai": "^4.1.1",
     "chai-as-promised": "^7.1.1",
@@ -23,8 +24,8 @@
     "mocha-junit-reporter": "^1.13.0",
     "mocha-multi-reporters": "^1.1.4",
     "morgan": "~1.8.1",
+    "nodemon": "^1.18.10",
     "serve-favicon": "~2.4.2",
-    "sqlite3": "^3.1.9",
-    "bluebird": "^3.5.0"
+    "sqlite3": "^3.1.9"
   }
 }

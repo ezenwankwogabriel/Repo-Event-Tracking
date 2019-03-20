@@ -7,4 +7,6 @@ router.post('/', events.addEvent);
 
 router.get('/', events.getAllEvents);
 
+router.get('/actors/:actorID', events.getByActor);
+
 module.exports = router;

@@ -7,4 +7,8 @@ console.log('here');
 
 router.get('/', actors.getAllActors);
 
+router.put('/', actors.updateActor);
+
+router.get('/single', actors.singleActor);
+
 module.exports = router;

@@ -23,9 +23,9 @@ dao.closeDb = () => {
 
 dao.createTable = (db) => {
     console.log("create database table");
-    db.run("CREATE TABLE IF NOT EXISTS actors(id INTEGER PRIMARY KEY AUTOINCREMENT, login TEXT, avatar_url TEXT)");
-    db.run("CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY AUTOINCREMENT, created_at TIMESTAMP, type TEXT, actor INTEGER, repo INTEGER, FOREIGN KEY (actor) REFERENCES actors(id), FOREIGN KEY (repo) REFERENCES repository(id))");
-    db.run("CREATE TABLE IF NOT EXISTS repository(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, url TEXT)");
+    db.run("CREATE TABLE IF NOT EXISTS actors(id INTEGER PRIMARY KEY, login TEXT, avatar_url TEXT)");
+    db.run("CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY, created_at TIMESTAMP, type TEXT, actor INTEGER, repo INTEGER, FOREIGN KEY (actor) REFERENCES actors(id), FOREIGN KEY (repo) REFERENCES repository(id))");
+    db.run("CREATE TABLE IF NOT EXISTS repository(id INTEGER PRIMARY KEY, name TEXT, url TEXT)");
 };
 
 dao.run = (sql, params = []) => {
@@ -64,7 +64,6 @@ dao.all = (sql, params = []) => {
           console.log(err)
           reject(err)
         } else {
-            console.log('fetched data', rows)
           resolve(rows)
         }
       })
@@ -98,12 +97,18 @@ dao.createRepo= (table, fields, data) => {
 
 //get all events by ascending order
 dao.getEvents = () => {
-    return dao.all('SELECT * FROM events INNER JOIN actors on actors.id = events.actor INNER JOIN repository on repository.id = events.repo ORDER BY id ASC ')    
+    return dao.all(`
+        SELECT events.id AS event_id, * FROM events 
+        INNER JOIN actors on actors.id = events.actor 
+        INNER JOIN repository on repository.id = events.repo 
+        ORDER BY id ASC
+    `);    
 };
 
 //get events by actor id
 dao.getEventByActor = (id) => {
-    let sql = 'SELECT * FROM events WHERE actor = ?';
+    let sql = `SELECT events.id AS event_id, * FROM events INNER JOIN actors on actors.id = events.actor INNER JOIN repository on repository.id = events.repo WHERE actor = ? ORDER BY id ASC`;
+//    let sql = `SELECT * FROM events LIMIT , 5`;
     return dao.all(sql, [id]);
 };
 
@@ -116,14 +121,20 @@ dao.singleEvent = (id) => {
 
 //get all actor;
 dao.allActors = () => {
-    console.log('actors fetching')
     return dao.all('SELECT * FROM actors');
 }
 
 //get single actor
 dao.singleActor = (id) => {
     let sql = 'SELECT * FROM actors WHERE id = ?';
-    dao.get(sql, [id]);
+    return dao.get(sql, [id]);
+};
+
+//get single repository
+//get single actor
+dao.singleRepo = (id) => {
+    let sql = 'SELECT * FROM repository WHERE id = ?';
+    return dao.get(sql, [id]);
 };
 
 //actor records ordered by the total number of events
@@ -134,15 +145,15 @@ dao.singleActor = (id) => {
 
 dao.updateActorUrl = (data) => {
     let sql = 'UPDATE actors SET avatar_url = ? WHERE id = ?';
-    dao.run(sql, [data.avatar_url, data.id]);
+    return dao.run(sql, [data.avatar_url, data.id]);
 };
 
 //get actors
 
 //delete erase
-dao.erase = () => {
-    let sql = 'DROP TABLE addresses';
-    dao.run(sql);
+dao.eraseEvent = () => {
+    let sql = 'DELETE FROM events';
+    return dao.run(sql);
 };
 
 
@@ -159,5 +170,5 @@ dao.erase = () => {
 //}
 
 //db.close();
-//dao.createDb
+//dao.createDbyyy
 module.exports = dao;

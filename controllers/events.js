@@ -17,22 +17,22 @@ var getAllEvents = (req, res) => {
 
 //create event
 var addEvent = (req, res) => {
-//    let data = req.body;
-    let data = {
-  "id":4055191679,
-  "type":"PushEvent",
-  "actor":{
-    "id":2790311,
-    "login":"daniel33",
-    "avatar_url":"https://avatars.com/2790311"
-  },
-  "repo":{
-    "id":352806,
-    "name":"johnbolton/exercitationem",
-    "url":"https://github.com/johnbolton/exercitationem"
-  },
-  "created_at":"2015-10-03 06:13:31"
-}
+    let data = req.body;
+//    let data = {
+//  "id":5055191674,
+//  "type":"PushEvent",
+//  "actor":{
+//    "id":2222918,
+//    "login":"daniel33",
+//    "avatar_url":"https://avatars.com/2790311"
+//  },
+//  "repo":{
+//    "id":352806,
+//    "name":"johnbolton/exercitationem",
+//    "url":"https://github.com/johnbolton/exercitationem"
+//  },
+//  "created_at": "2015-10-04T05:13:31.000Z"
+//}
     dao.singleEvent(data.id).then( single => {
         if(single) {
             return res.status(400).end();
@@ -66,7 +66,6 @@ var addEvent = (req, res) => {
 //get event by actor id 
 var getByActor = (req, res) => {
     let actor_id = req.params.actorID;
-    console.log({actor_id})
     dao.getEventByActor(actor_id).then(response => {
         if(response.length > 0) {
             setEventJson(response, (result) => {

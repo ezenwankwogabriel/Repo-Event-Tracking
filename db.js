@@ -105,12 +105,26 @@ dao.getEvents = () => {
     `);    
 };
 
+//get all events for actors()
+dao.getEventsActors = () => {
+    return dao.all(`
+        SELECT events.id AS event_id, * FROM events 
+        INNER JOIN actors on actors.id = events.actor
+    `);    
+}
 //get events by actor id
 dao.getEventByActor = (id) => {
     let sql = `SELECT events.id AS event_id, * FROM events INNER JOIN actors on actors.id = events.actor INNER JOIN repository on repository.id = events.repo WHERE actor = ? ORDER BY id ASC`;
 //    let sql = `SELECT * FROM events LIMIT , 5`;
     return dao.all(sql, [id]);
 };
+
+dao.getEventStreak = () => {
+    return dao.all(`
+        SELECT events.id AS event_id, * FROM events 
+        INNER JOIN actors on actors.id = events.actor
+    `)
+}
 
 //get events by id
 //find event to check if it exists before creating a new record

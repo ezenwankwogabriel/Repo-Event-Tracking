@@ -2,11 +2,15 @@ let dao = require('./../db');
 const Promise = require('bluebird');
 const { setEventJson, findActor, findRepo }  = require('./../utils')
 
-//get all events
+/** 
+ * Get All Events
+ */
 var getAllEvents = (req, res) => {
+    //fetch events from db;
     dao.getEvents().then(response => {
+        //arrange the events to required format
         setEventJson(response, (result) => {
-            return res.status(201).json(result);
+            return res.status(200).json(result);
         });
     }).catch(err => {
         console.log({err});
@@ -15,36 +19,23 @@ var getAllEvents = (req, res) => {
 };
 
 
-//create event
+/** 
+ * Create An Events
+ */
 var addEvent = (req, res) => {
     let data = req.body;
-//    let data = {
-//  "id":5055191674,
-//  "type":"PushEvent",
-//  "actor":{
-//    "id":2222918,
-//    "login":"daniel33",
-//    "avatar_url":"https://avatars.com/2790311"
-//  },
-//  "repo":{
-//    "id":352806,
-//    "name":"johnbolton/exercitationem",
-//    "url":"https://github.com/johnbolton/exercitationem"
-//  },
-//  "created_at": "2015-10-04T05:13:31.000Z"
-//}
+    //check if event exists previously
     dao.singleEvent(data.id).then( single => {
         if(single) {
             return res.status(400).end();
         } else {
 
-            let actor_array = Object.values(data.actor);
             //check if actor exists, create if it doesnt;
+            let actor_array = Object.values(data.actor);
             findActor(actor_array, () => {
                 //check if repo exists, create if it doesnt;
                 let repo_array = Object.values(data.repo);
-                findRepo(repo_array, () => {
-                    
+                findRepo(repo_array, () => {                    
                     //create event
                     data.actor = data.actor.id;
                     data.repo = data.repo.id;
@@ -63,27 +54,40 @@ var addEvent = (req, res) => {
     })
 };
 
-//get event by actor id 
+/** 
+ * Get Events filtered by Actors ID
+ */
 var getByActor = (req, res) => {
     let actor_id = req.params.actorID;
+    //fetch events by actor id
     dao.getEventByActor(actor_id).then(response => {
         if(response.length > 0) {
+            //format events to required object state
             setEventJson(response, (result) => {
                 return res.status(200).json(result);
             })  
         } else {
             return res.status(404).end();
         }
-
     }).catch(err => {
         console.log({err});
         return res.status(404).end();
     })
 };
 
+/** 
+ * Erase All Events, Repos and Actors
+ */
 var eraseEvents = (req, res) => {
+    //erase events
     dao.eraseEvent().then(response => {
-        return res.status(200).end();
+        //erase repos
+        dao.eraseRepository().then(() => {
+            //erase actors
+            dao.eraseActors().then(() => {
+                return res.status(200).end()
+            })
+        })
     })
 };
 

@@ -4,6 +4,7 @@ const Promise = require('bluebird');
 
 let dao = {};
 let db;
+
 //create db
 dao.createDb = () => {
     db = new sqlite3.Database("./database.sqlite3", (err) => { 
@@ -17,10 +18,12 @@ dao.createDb = () => {
     });
 }; 
 
+//close db
 dao.closeDb = () => {
     db.close();
 };
 
+//create table
 dao.createTable = (db) => {
     console.log("create database table");
     db.run("CREATE TABLE IF NOT EXISTS actors(id INTEGER PRIMARY KEY, login TEXT, avatar_url TEXT)");
@@ -28,6 +31,7 @@ dao.createTable = (db) => {
     db.run("CREATE TABLE IF NOT EXISTS repository(id INTEGER PRIMARY KEY, name TEXT, url TEXT)");
 };
 
+//run sql query
 dao.run = (sql, params = []) => {
     return new Promise((resolve, reject) => {
       db.run(sql, params, function (err, data) {
@@ -42,6 +46,7 @@ dao.run = (sql, params = []) => {
     })
 };
 
+//get sqlite data 
 dao.get = (sql, params = []) => {
     return new Promise((resolve, reject) => {
       db.get(sql, params, (err, result) => {
@@ -56,6 +61,7 @@ dao.get = (sql, params = []) => {
     })
   };
 
+//select all data for sqlite3 query
 dao.all = (sql, params = []) => {
     return new Promise((resolve, reject) => {
       db.all(sql, params, (err, rows) => {
@@ -75,19 +81,21 @@ dao.all = (sql, params = []) => {
 /* 
  * queries
  */
-//create
+//create event
 dao.createEvent = (table, fields, data) => {
     //data is an array containing type, repo and actor id;
     let sql = `INSERT INTO events (${fields}) VALUES(?, ?, ?, ?, ?)`;
     return dao.run(sql, data);
 };
 
+//create actor
 dao.createActor = (table, fields, data) => {
     //data is an array containing type, repo and actor id;
     let sql = `INSERT INTO actors (${fields}) VALUES(?, ?, ?)`;
     return dao.run(sql, data);
 };
 
+//create repo
 dao.createRepo= (table, fields, data) => {
     //data is an array containing type, repo and actor id;
     let sql = `INSERT INTO repository (${fields}) VALUES(?, ?, ?)`;
@@ -106,23 +114,32 @@ dao.getEvents = () => {
 };
 
 //get all events for actors()
-dao.getEventsActors = () => {
+dao.getActors = () => {
     return dao.all(`
-        SELECT events.id AS event_id, * FROM events 
-        INNER JOIN actors on actors.id = events.actor
+        SELECT actors.*, count(events.id) as event_count, 
+        max(created_at) as date from actors 
+        inner join events on actors.id = events.actor 
+        GROUP BY events.actor 
+        order by event_count DESC, date DESC
     `);    
-}
+};
+
 //get events by actor id
 dao.getEventByActor = (id) => {
-    let sql = `SELECT events.id AS event_id, * FROM events INNER JOIN actors on actors.id = events.actor INNER JOIN repository on repository.id = events.repo WHERE actor = ? ORDER BY id ASC`;
-//    let sql = `SELECT * FROM events LIMIT , 5`;
+    let sql = `
+                SELECT events.id AS event_id, * FROM events 
+                INNER JOIN actors on actors.id = events.actor 
+                INNER JOIN repository on repository.id = events.repo WHERE actor = ? 
+                ORDER BY id ASC`;
     return dao.all(sql, [id]);
 };
 
+//return events for maximum streak calculation
 dao.getEventStreak = () => {
     return dao.all(`
         SELECT events.id AS event_id, * FROM events 
-        INNER JOIN actors on actors.id = events.actor
+        INNER JOIN actors on actors.id = events.actor 
+        ORDER BY created_at ASC
     `)
 }
 
@@ -151,38 +168,30 @@ dao.singleRepo = (id) => {
     return dao.get(sql, [id]);
 };
 
-//actor records ordered by the total number of events
-
-//actor records ordered by the maximum streak
-
-
-
+//update actor url
 dao.updateActorUrl = (data) => {
+    console.log('updating', data.id)
     let sql = 'UPDATE actors SET avatar_url = ? WHERE id = ?';
     return dao.run(sql, [data.avatar_url, data.id]);
 };
 
-//get actors
-
-//delete erase
+//delete event records
 dao.eraseEvent = () => {
     let sql = 'DELETE FROM events';
     return dao.run(sql);
 };
 
+//delete repo records
+dao.eraseRepository = () => {
+    let sql = 'DELETE FROM repository';
+    return dao.run(sql);
+};
+
+//delete actor records
+dao.eraseActors = () => {
+    let sql = 'DELETE FROM actors';
+    return dao.run(sql);
+}
 
 
-
-
-//read = () => {
-//    console.log("Read data from contacts");
-//    db.all("SELECT rowid AS id, name FROM contacts", function(err, rows) {
-//        rows.forEach(function (row) {
-//            console.log(row.id + ": " + row.name);
-//        });
-//    });
-//}
-
-//db.close();
-//dao.createDbyyy
 module.exports = dao;

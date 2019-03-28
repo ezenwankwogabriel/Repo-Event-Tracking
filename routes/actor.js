@@ -8,8 +8,6 @@ router.get('/', actors.getAllActors);
 
 router.put('/', actors.updateActor);
 
-router.get('/single', actors.singleActor);
-
 router.get('/streak', actors.getStreak);
 
 module.exports = router;

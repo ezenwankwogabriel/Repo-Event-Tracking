@@ -146,7 +146,6 @@ module.exports = {
             //find event with accumulator id
             let actor = accumulator.find(single => single.id === currentValue.id);
             if (actor) {
-                console.log('here', actor.id)
                 //check for consecutive login days;
                 let difference = dateDiffInDays(new Date(actor.created_at), new Date(currentValue.created_at));
                 if(difference === 1) {

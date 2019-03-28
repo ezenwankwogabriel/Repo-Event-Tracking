@@ -12,6 +12,7 @@ var getAllActors = (req, res) => {
         arrange_actors(events, (actors) => {
             return res.status(200).json(actors)
         });   
+    });
 };
 
 /** 
@@ -42,8 +43,6 @@ var updateActor = (req, res) => {
         console.log({err});
         return res.status(404).end();
     })
-});
-
 };
 
 /** 
@@ -67,7 +66,6 @@ module.exports = {
 	updateActor: updateActor,
 	getAllActors: getAllActors,
 	getStreak: getStreak,
-	singleActor: singleActor,
 };
 
 

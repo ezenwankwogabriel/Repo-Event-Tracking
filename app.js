@@ -56,11 +56,5 @@ app.use(function(err, req, res, next) {
 app.get('/', (req, res) => {
     return res.send(200)
 })
-//http.listen(port, function(err) {
-//    if(err) {
-//        console.log('err connecting to port' + port)
-//    } else {
-//        console.log('listening on port ' + port)
-//    }
-//})
+
 module.exports = app;

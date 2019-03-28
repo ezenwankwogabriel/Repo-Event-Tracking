@@ -114,7 +114,7 @@ dao.getEvents = () => {
 };
 
 //get all events for actors()
-dao.getActors = () => {
+dao.getAllActors = () => {
     return dao.all(`
         SELECT actors.*, count(events.id) as event_count, 
         max(created_at) as date from actors 
@@ -170,7 +170,6 @@ dao.singleRepo = (id) => {
 
 //update actor url
 dao.updateActorUrl = (data) => {
-    console.log('updating', data.id)
     let sql = 'UPDATE actors SET avatar_url = ? WHERE id = ?';
     return dao.run(sql, [data.avatar_url, data.id]);
 };
